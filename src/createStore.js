@@ -57,6 +57,7 @@ export default function createStore(reducer, initialState) {
    * @param {Function} listener A callback to be invoked on every dispatch.
    * @returns {Function} A function to remove this change listener.
    */
+  // 通过 subscribe(listener) 注册监听器
   function subscribe(listener) {
     listeners.push(listener)
     var isSubscribed = true
@@ -97,6 +98,7 @@ export default function createStore(reducer, initialState) {
    * Note that, if you use a custom middleware, it may wrap `dispatch()` to
    * return something else (for example, a Promise you can await).
    */
+  // 提供 dispatch(action) 方法更新 state
   function dispatch(action) {
     if (!isPlainObject(action)) {
       throw new Error(
@@ -145,6 +147,7 @@ export default function createStore(reducer, initialState) {
   // When a store is created, an "INIT" action is dispatched so that every
   // reducer returns their initial state. This effectively populates
   // the initial state tree.
+  // redux.createStore(reducer, initialState) 的时候, 内部会 自己调用 dispatch({ type: ActionTypes.INIT });来完成state的初始化
   dispatch({ type: ActionTypes.INIT })
 
   return {

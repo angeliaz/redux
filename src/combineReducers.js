@@ -49,6 +49,17 @@ function getUnexpectedStateShapeWarningMessage(inputState, reducers, action) {
   }
 }
 
+// 对reducer做合法性检测
+// store = Redux.createStore(reducer, initialState) -->
+// currentState = initialState
+// currentState = currentReducer(currentState, action);
+//
+// 从调用关系,调用时机来看, store.getState() 的初始值(currentState)
+// 为 currentReducer(initialState, { type: ActionTypes.INIT })
+//
+// 1. 在初始化阶段,reducer 传入的 state 值是 undefined,此时,需要返回初始state,且初始state不能为undefined
+// 2. 当传入不认识的 actionType 时, reducer(state, {type}) 返回的不能是undefined
+// 3. redux/ 这个 namespace 下的action 不应该做处理,直接返回 currentState 就行 (谁运气这么差会去用这种actionType...)
 function assertReducerSanity(reducers) {
   Object.keys(reducers).forEach(key => {
     var reducer = reducers[key]
@@ -95,10 +106,13 @@ function assertReducerSanity(reducers) {
  */
 
 export default function combineReducers(reducers) {
+  // 返回一个对象, key => value 且value是function(其实就是过滤掉非function)
   var finalReducers = pick(reducers, (val) => typeof val === 'function')
   var sanityError
 
   try {
+    // 对所有的子reducer 做一些合法性断言,如果没有出错再继续下面的处理
+    // 合法性断言的内容,见API注释
     assertReducerSanity(finalReducers)
   } catch (e) {
     sanityError = e
@@ -120,6 +134,7 @@ export default function combineReducers(reducers) {
     var finalState = mapValues(finalReducers, (reducer, key) => {
       var previousStateForKey = state[key]
       var nextStateForKey = reducer(previousStateForKey, action)
+      // 任一个reducer返回的是undefined,抛出错误
       if (typeof nextStateForKey === 'undefined') {
         var errorMessage = getUndefinedStateErrorMessage(key, action)
         throw new Error(errorMessage)

@@ -16,6 +16,47 @@ import compose from './compose'
  * @param {...Function} middlewares The middleware chain to be applied.
  * @returns {Function} A store enhancer applying the middleware.
  */
+
+// 把这个改写成ES5
+/*return function (next) {
+  function (reducer, initialState) {
+    var store = next(reducer, initialState)
+    var dispatch = store.dispatch
+    var chain = []
+
+    var middlewareAPI = {
+      getState: store.getState,
+      dispatch: function (action) {
+        return dispatch(action)
+      }
+    }
+    chain = middlewares.map(function (middleware) {
+      return middleware(middlewareAPI)
+    })
+    dispatch = compose(...chain)(store.dispatch)
+    return {
+      ...store,
+      dispatch
+    }
+  }
+}*/
+
+// 拿个例子看看
+/*const createStoreWithMiddleware = applyMiddleware(
+  thunkMiddleware,
+  createLogger()
+)(createStore)
+const store = createStoreWithMiddleware(rootReducer, initialState)
+
+*/
+
+// 参照上面这个例子： 参数thunkMiddleware和createLogger()是...middlewares
+// createStore是next
+// rootReducer, initialState是reducer, initialState
+
+
+// middlewares是数组
+//
 export default function applyMiddleware(...middlewares) {
   return (next) => (reducer, initialState) => {
     var store = next(reducer, initialState)
@@ -33,5 +74,12 @@ export default function applyMiddleware(...middlewares) {
       ...store,
       dispatch
     }
+  }
+
+}
+
+function test() {
+  return function (a) {
+
   }
 }

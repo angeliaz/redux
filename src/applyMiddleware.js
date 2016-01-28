@@ -63,6 +63,9 @@ export default function applyMiddleware(...middlewares) {
     var dispatch = store.dispatch
     var chain = []
 
+    // 上面的store参数，其实就是这个对象
+    // 其中，store 为内部的store，我们在外面 storeWithMiddleWare.dipatch的时候，内部实现是转成 store.dispatch
+    // 此外，可以看到 middlewareAPI.dispatch 方法，是最终封装后的dispatch（千万注意，如果在中间件内部 调用 store.dispatch，可能导致死循环 ）
     var middlewareAPI = {
       getState: store.getState,
       dispatch: (action) => dispatch(action)
